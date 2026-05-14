@@ -20,6 +20,7 @@ export interface ApprovedVideo {
   title: string
   thumbnail_url: string | null
   channel_id: string | null
+  channel_name: string | null
   duration: string | null
   published_at: string | null
   approval_status: ApprovalStatus
