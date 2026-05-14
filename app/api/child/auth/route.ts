@@ -23,6 +23,8 @@ export async function POST(request: NextRequest) {
   const { data: profiles, error } = await admin
     .from('child_profile')
     .select('id, parent_id, pin_hash')
+    .not('pin_hash', 'is', null)
+    .neq('pin_hash', '')
 
   if (error) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
