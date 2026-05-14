@@ -1,22 +1,21 @@
-import { LogOut } from 'lucide-react'
-import { logout } from './actions'
+import { createClient } from '@/lib/supabase/server'
+import AdminShell from './components/AdminShell'
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
-        <span className="font-bold text-gray-900 text-lg">SafeTube</span>
-        <form action={logout}>
-          <button
-            type="submit"
-            className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
-          >
-            <LogOut size={15} />
-            Sign out
-          </button>
-        </form>
-      </nav>
-      <main className="p-6">{children}</main>
-    </div>
-  )
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const supabase = createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  let childName: string | null = null
+  if (user) {
+    const { data } = await supabase
+      .from('child_profile')
+      .select('name')
+      .eq('parent_id', user.id)
+      .maybeSingle()
+    childName = data?.name ?? null
+  }
+
+  return <AdminShell childName={childName}>{children}</AdminShell>
 }
