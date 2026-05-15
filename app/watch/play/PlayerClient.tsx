@@ -79,6 +79,7 @@ export default function PlayerClient() {
 
   function handleReady(event: YouTubeEvent) {
     playerRef.current = event.target
+    event.target.playVideo()
   }
 
   function handleEnd() {

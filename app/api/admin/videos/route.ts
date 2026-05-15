@@ -22,6 +22,21 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
+  // Check that the video is embeddable before approving
+  const ytRes = await fetch(
+    `https://www.googleapis.com/youtube/v3/videos?id=${youtube_video_id}&part=status&key=${process.env.YOUTUBE_API_KEY}`
+  )
+  if (ytRes.ok) {
+    const ytData = await ytRes.json() as { items?: Array<{ status?: { embeddable?: boolean } }> }
+    const embeddable = ytData.items?.[0]?.status?.embeddable
+    if (embeddable === false) {
+      return NextResponse.json(
+        { error: "This video can't be embedded and cannot be approved." },
+        { status: 422 }
+      )
+    }
+  }
+
   // Upsert: if video already exists (e.g. from a channel sync), mark it approved
   const { data, error } = await supabase
     .from('approved_videos')
