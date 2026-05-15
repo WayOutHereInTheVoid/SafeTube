@@ -11,6 +11,7 @@ interface PlaylistVideo {
   id: string
   youtube_video_id: string
   title: string
+  channel_name: string | null
   thumbnail_url: string | null
   duration: string | null
 }
@@ -222,37 +223,55 @@ export default function PlayerClient() {
 
       {/* Thumbnail grid */}
       <div className="flex-1 overflow-y-auto p-4">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {videos.map((video, index) => (
             <button
               key={video.id}
               onClick={() => selectVideo(index)}
-              className={`relative rounded-xl overflow-hidden aspect-video bg-gray-800 focus:outline-none transition-all ${
-                currentIndex === index
-                  ? 'ring-2 ring-blue-500 scale-[0.97]'
-                  : 'hover:scale-[0.98] active:scale-95'
+              className={`flex flex-col gap-2 text-left group focus:outline-none transition-all ${
+                currentIndex === index ? 'scale-[0.97]' : 'hover:scale-[0.98] active:scale-95'
               }`}
               aria-label={`Play ${video.title}`}
             >
-              {video.thumbnail_url ? (
-                <Image
-                  src={video.thumbnail_url}
-                  alt=""
-                  fill
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  className="object-cover"
-                  draggable={false}
-                />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Film size={28} className="text-gray-600" />
-                </div>
-              )}
-              {currentIndex === index && (
-                <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center">
-                  <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse" />
-                </div>
-              )}
+              <div
+                className={`relative rounded-xl overflow-hidden aspect-video bg-gray-800 w-full transition-all ${
+                  currentIndex === index
+                    ? 'ring-2 ring-blue-500'
+                    : 'group-hover:ring-2 group-hover:ring-gray-700'
+                }`}
+              >
+                {video.thumbnail_url ? (
+                  <Image
+                    src={video.thumbnail_url}
+                    alt=""
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    className="object-cover"
+                    draggable={false}
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Film size={28} className="text-gray-600" />
+                  </div>
+                )}
+                {currentIndex === index && (
+                  <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center">
+                    <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse" />
+                  </div>
+                )}
+              </div>
+              <div className="px-1">
+                <h3
+                  className={`text-sm font-medium line-clamp-2 transition-colors ${
+                    currentIndex === index ? 'text-blue-400' : 'text-gray-200 group-hover:text-white'
+                  }`}
+                >
+                  {video.title}
+                </h3>
+                {video.channel_name && (
+                  <p className="text-xs text-gray-400 mt-1 truncate">{video.channel_name}</p>
+                )}
+              </div>
             </button>
           ))}
         </div>
