@@ -11,7 +11,7 @@ export async function GET() {
   const admin = createAdminClient()
   const { data, error } = await admin
     .from('approved_videos')
-    .select('id, youtube_video_id, title, thumbnail_url, duration')
+    .select('id, youtube_video_id, title, channel_name, thumbnail_url, duration')
     .eq('parent_id', session.parent_id)
     .eq('approval_status', 'approved')
     .order('created_at', { ascending: false })
