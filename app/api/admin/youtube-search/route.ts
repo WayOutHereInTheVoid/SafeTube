@@ -121,9 +121,15 @@ export async function POST(request: NextRequest) {
 
   const searchRes = await fetch(`${YT}/search?${searchParams}`)
   if (!searchRes.ok) {
-    const err = await searchRes.json() as { error?: { message?: string } }
-    const message = err?.error?.message ?? 'YouTube API error'
-    return NextResponse.json({ error: message }, { status: searchRes.status })
+    const err = await searchRes.json() as {
+      error?: { message?: string; errors?: Array<{ reason?: string }> }
+    }
+    const reason = err?.error?.errors?.[0]?.reason ?? ''
+    const quotaExceeded = reason === 'quotaExceeded' || reason === 'dailyLimitExceeded'
+    const message = quotaExceeded
+      ? 'YouTube API daily quota exceeded — searches reset at midnight Pacific Time. Try again tomorrow or check your Google Cloud Console quota settings.'
+      : (err?.error?.message ?? 'YouTube API error')
+    return NextResponse.json({ error: message, quota_exceeded: quotaExceeded }, { status: searchRes.status })
   }
 
   const searchData = await searchRes.json() as { items: YTSearchItem[] }
