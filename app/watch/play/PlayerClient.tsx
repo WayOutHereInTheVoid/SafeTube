@@ -154,8 +154,10 @@ export default function PlayerClient() {
             onEnd={handleEnd}
             onStateChange={handleStateChange}
           />
-          {/* Block YouTube logo link */}
+          {/* Block bottom-bar links: chain icon (left), More videos (center), YouTube logo (right) */}
           <div className="absolute bottom-12 left-0 w-28 h-8 z-10" style={{ touchAction: 'none' }} />
+          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-56 h-8 z-10" style={{ touchAction: 'none' }} />
+          <div className="absolute bottom-12 right-0 w-40 h-8 z-10" style={{ touchAction: 'none' }} />
         </div>
       </div>
     )
@@ -192,8 +194,10 @@ export default function PlayerClient() {
                   onEnd={handleEnd}
                   onStateChange={handleStateChange}
                 />
-                {/* Block YouTube logo link — covers bottom-left branding area */}
+                {/* Block bottom-bar links: chain icon (left), More videos (center), YouTube logo (right) */}
                 <div className="absolute bottom-10 left-0 w-28 h-8 z-10" />
+                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-56 h-8 z-10" />
+                <div className="absolute bottom-10 right-0 w-40 h-8 z-10" />
               </div>
             </div>
 
