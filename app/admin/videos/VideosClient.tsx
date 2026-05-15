@@ -142,6 +142,7 @@ export default function VideosClient({ initialVideos }: { initialVideos: Approve
   const router = useRouter()
 
   const [query, setQuery] = useState('')
+  const [searchOrder, setSearchOrder] = useState<'relevance' | 'date'>('relevance')
   const [results, setResults] = useState<YoutubeSearchResult[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [searchError, setSearchError] = useState<string | null>(null)
@@ -175,10 +176,9 @@ export default function VideosClient({ initialVideos }: { initialVideos: Approve
 
   // ── Search ────────────────────────────────────────────────────────────────
 
-  const handleSearch = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault()
-      if (!query.trim()) return
+  const performSearch = useCallback(
+    async (currentQuery: string, currentOrder: 'relevance' | 'date') => {
+      if (!currentQuery.trim()) return
       setIsSearching(true)
       setSearchError(null)
       setResults([])
@@ -186,7 +186,11 @@ export default function VideosClient({ initialVideos }: { initialVideos: Approve
         const res = await fetch('/api/admin/youtube-search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: query.trim(), type: 'video' }),
+          body: JSON.stringify({
+            query: currentQuery.trim(),
+            type: 'video',
+            order: currentOrder,
+          }),
         })
         const data = await res.json()
         if (!res.ok) {
@@ -201,7 +205,25 @@ export default function VideosClient({ initialVideos }: { initialVideos: Approve
         setIsSearching(false)
       }
     },
-    [query]
+    []
+  )
+
+  const handleSearch = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault()
+      await performSearch(query, searchOrder)
+    },
+    [query, searchOrder, performSearch]
+  )
+
+  const handleOrderChange = useCallback(
+    async (newOrder: 'relevance' | 'date') => {
+      setSearchOrder(newOrder)
+      if (query.trim()) {
+        await performSearch(query, newOrder)
+      }
+    },
+    [query, performSearch]
   )
 
   // ── Approve from search ───────────────────────────────────────────────────
@@ -271,26 +293,56 @@ export default function VideosClient({ initialVideos }: { initialVideos: Approve
       </p>
 
       {/* Search */}
-      <form onSubmit={handleSearch} className="mt-6 flex gap-2">
-        <div className="relative flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search YouTube videos…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="w-full rounded-xl border border-gray-300 pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+      <div className="mt-6 space-y-3">
+        <form onSubmit={handleSearch} className="flex gap-2">
+          <div className="relative flex-1">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search YouTube videos…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="w-full rounded-xl border border-gray-300 pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={isSearching || !query.trim()}
+            className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 transition-colors"
+          >
+            {isSearching && <Loader2 size={15} className="animate-spin" />}
+            Search
+          </button>
+        </form>
+
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium text-gray-500">Order by:</span>
+          <div className="flex p-0.5 bg-gray-100 rounded-lg">
+            <button
+              type="button"
+              onClick={() => handleOrderChange('relevance')}
+              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                searchOrder === 'relevance'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Relevance
+            </button>
+            <button
+              type="button"
+              onClick={() => handleOrderChange('date')}
+              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                searchOrder === 'date'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Newest
+            </button>
+          </div>
         </div>
-        <button
-          type="submit"
-          disabled={isSearching || !query.trim()}
-          className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 transition-colors"
-        >
-          {isSearching && <Loader2 size={15} className="animate-spin" />}
-          Search
-        </button>
-      </form>
+      </div>
 
       {searchError && <p className="mt-3 text-sm text-red-600">{searchError}</p>}
 

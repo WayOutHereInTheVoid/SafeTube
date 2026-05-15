@@ -91,14 +91,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  let body: { query?: unknown; type?: unknown }
+  let body: { query?: unknown; type?: unknown; order?: unknown }
   try {
     body = await request.json()
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  const { query, type } = body
+  const { query, type, order } = body
 
   if (
     typeof query !== 'string' ||
@@ -118,6 +118,10 @@ export async function POST(request: NextRequest) {
     part: 'snippet',
     maxResults: '10',
   })
+
+  if (typeof order === 'string' && order) {
+    searchParams.append('order', order)
+  }
 
   const searchRes = await fetch(`${YT}/search?${searchParams}`)
   if (!searchRes.ok) {
