@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { Tv, Play, AlertCircle, Clock } from 'lucide-react'
+import SyncButton from '@/app/admin/components/SyncButton'
 
 const COLOR_CLASSES = {
   blue:   { card: 'bg-blue-50',   icon: 'text-blue-600',   value: 'text-blue-700'  },
@@ -69,8 +70,13 @@ export default async function DashboardPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-      <p className="mt-1 text-sm text-gray-500">Overview of your SafeTube content</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <p className="mt-1 text-sm text-gray-500">Overview of your SafeTube content</p>
+        </div>
+        <SyncButton />
+      </div>
 
       <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {stats.map(({ label, value, icon: Icon, href, color }) => {

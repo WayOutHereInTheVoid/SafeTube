@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Search, Plus, Pencil, Trash2, X, Loader2, Tv } from 'lucide-react'
+import { Search, Plus, Pencil, Trash2, X, Loader2, Tv, AlertTriangle } from 'lucide-react'
 import type { ApprovedChannel, ApprovalMode } from '@/types/database'
 import type { YoutubeSearchResult } from '@/app/api/admin/youtube-search/route'
 
@@ -172,6 +172,7 @@ export default function ChannelsClient({
   const [results, setResults] = useState<YoutubeSearchResult[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [searchError, setSearchError] = useState<string | null>(null)
+  const [quotaExceeded, setQuotaExceeded] = useState(false)
 
   // Modal state
   const [modal, setModal] = useState<{
@@ -194,6 +195,7 @@ export default function ChannelsClient({
     if (!query.trim()) return
     setIsSearching(true)
     setSearchError(null)
+    setQuotaExceeded(false)
     setResults([])
 
     try {
@@ -202,8 +204,9 @@ export default function ChannelsClient({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: query.trim(), type: 'channel' }),
       })
-      const data = await res.json()
+      const data = await res.json() as { results?: YoutubeSearchResult[]; error?: string; quota_exceeded?: boolean }
       if (!res.ok) {
+        setQuotaExceeded(data.quota_exceeded ?? false)
         setSearchError(data.error ?? 'Search failed')
       } else {
         setResults(data.results ?? [])
@@ -353,7 +356,14 @@ export default function ChannelsClient({
 
         {/* Search error */}
         {searchError && (
-          <p className="mt-3 text-sm text-red-600">{searchError}</p>
+          quotaExceeded ? (
+            <div className="mt-3 flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+              <AlertTriangle size={16} className="text-amber-500 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-amber-800">{searchError}</p>
+            </div>
+          ) : (
+            <p className="mt-3 text-sm text-red-600">{searchError}</p>
+          )
         )}
 
         {/* Search results */}
