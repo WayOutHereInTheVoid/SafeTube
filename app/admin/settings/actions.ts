@@ -4,14 +4,31 @@ import bcrypt from 'bcryptjs'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
+/**
+ * Redirects with an error message encoded in search parameters.
+ *
+ * @param msg - The error message to display.
+ * @param section - The settings section where the error occurred.
+ */
 function encErr(msg: string, section: string): never {
   redirect(`/admin/settings?error=${encodeURIComponent(msg)}&section=${section}`)
 }
 
+/**
+ * Redirects with a success message encoded in search parameters.
+ *
+ * @param section - The settings section that was successfully updated.
+ */
 function encOk(section: string): never {
   redirect(`/admin/settings?success=${section}`)
 }
 
+/**
+ * Authenticates the current user and returns the Supabase client and user object.
+ * Redirects to login if no session is found.
+ *
+ * @returns A promise resolving to an object containing the Supabase client and user.
+ */
 async function getUser() {
   const supabase = createClient()
   const {
@@ -21,6 +38,11 @@ async function getUser() {
   return { supabase, user }
 }
 
+/**
+ * Server action to save or update the child's profile name.
+ *
+ * @param formData - Form data containing the 'name' field.
+ */
 export async function saveChildName(formData: FormData) {
   const name = (formData.get('name') as string | null)?.trim()
   if (!name) encErr('Name is required', 'profile')
@@ -51,6 +73,11 @@ export async function saveChildName(formData: FormData) {
   encOk('profile')
 }
 
+/**
+ * Server action to update the child's PIN.
+ *
+ * @param formData - Form data containing 'pin' and 'pin_confirm'.
+ */
 export async function saveChildPin(formData: FormData) {
   const pin = formData.get('pin') as string | null
   const confirm = formData.get('pin_confirm') as string | null
@@ -78,6 +105,11 @@ export async function saveChildPin(formData: FormData) {
   encOk('pin')
 }
 
+/**
+ * Server action to update the parent's login password.
+ *
+ * @param formData - Form data containing 'new_password' and 'confirm_password'.
+ */
 export async function saveParentPassword(formData: FormData) {
   const newPassword = formData.get('new_password') as string | null
   const confirm = formData.get('confirm_password') as string | null

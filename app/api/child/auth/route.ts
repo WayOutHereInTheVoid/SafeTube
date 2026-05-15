@@ -4,6 +4,13 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { signChildJWT } from '@/lib/child-auth'
 import { CHILD_COOKIE } from '@/lib/child-session'
 
+/**
+ * POST handler for child authentication via PIN.
+ * If the PIN is correct, it sets an httpOnly cookie with a signed JWT.
+ *
+ * @param request - The incoming request containing the PIN.
+ * @returns A JSON response indicating success, along with the session cookie.
+ */
 export async function POST(request: NextRequest) {
   let body: { pin?: unknown }
   try {

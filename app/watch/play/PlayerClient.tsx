@@ -7,16 +7,29 @@ import YouTube from 'react-youtube'
 import { Film, ChevronLeft } from 'lucide-react'
 import type { YouTubeEvent, YouTubePlayer } from 'react-youtube'
 
+/** Represents a video in the child's playlist. */
 interface PlaylistVideo {
+  /** Unique ID of the video record. */
   id: string
+  /** YouTube's internal video ID. */
   youtube_video_id: string
+  /** Title of the video. */
   title: string
+  /** URL to the video's thumbnail image. */
   thumbnail_url: string | null
+  /** Formatted duration of the video. */
   duration: string | null
 }
 
+/** Interval for periodic watch history logging. */
 const LOG_INTERVAL_MS = 30_000
 
+/**
+ * Client-side component for the child's YouTube player.
+ * Fetches the playlist, handles video playback, and logs watch history.
+ *
+ * @returns A player client component.
+ */
 export default function PlayerClient() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -46,6 +59,12 @@ export default function PlayerClient() {
 
   // ── Watch-history logging ─────────────────────────────────────────────────
 
+  /**
+   * Logs a watch history entry to the API.
+   *
+   * @param videoId - The ID of the video record.
+   * @param completed - Whether the video was finished.
+   */
   const logWatch = useCallback(
     async (videoId: string, completed: boolean) => {
       if (!playerRef.current) return
@@ -76,16 +95,30 @@ export default function PlayerClient() {
 
   // ── YouTube player event handlers ─────────────────────────────────────────
 
+  /**
+   * Handles the YouTube player's ready event.
+   *
+   * @param event - The YouTube event object.
+   */
   function handleReady(event: YouTubeEvent) {
     playerRef.current = event.target
   }
 
+  /**
+   * Handles the end of a video playback.
+   * Logs completion and advances to the next video in the playlist.
+   */
   function handleEnd() {
     if (currentIndex === null || videos.length === 0) return
     logWatch(videos[currentIndex].id, true)
     setCurrentIndex((i) => ((i ?? 0) + 1) % videos.length)
   }
 
+  /**
+   * Handles state changes in the YouTube player.
+   *
+   * @param event - The YouTube event object.
+   */
   function handleStateChange(event: YouTubeEvent) {
     // State 0 = ended (handled by onEnd), 1 = playing, 2 = paused
     if (event.data === 0) return
@@ -94,6 +127,11 @@ export default function PlayerClient() {
 
   // ── Select a video ────────────────────────────────────────────────────────
 
+  /**
+   * Selects and starts playing a video from the grid.
+   *
+   * @param index - The index of the video in the playlist.
+   */
   function selectVideo(index: number) {
     if (currentIndex !== null && videos[currentIndex]) {
       logWatch(videos[currentIndex].id, false)

@@ -2,6 +2,12 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getChildSession } from '@/lib/child-session'
 
+/**
+ * GET handler for retrieving the child's playlist of approved videos.
+ * Requires a valid child session.
+ *
+ * @returns A JSON response containing an array of approved videos.
+ */
 export async function GET() {
   const session = await getChildSession()
   if (!session) {

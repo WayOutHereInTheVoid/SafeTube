@@ -9,6 +9,12 @@ import type { YoutubeSearchResult } from '@/app/api/admin/youtube-search/route'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+/**
+ * Formats a YouTube ISO 8601 duration string into a human-readable format (e.g., "1:23:45" or "12:34").
+ *
+ * @param iso - The ISO 8601 duration string.
+ * @returns A formatted duration string.
+ */
 function formatDuration(iso: string | null | undefined): string {
   if (!iso) return ''
   const m = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/)
@@ -20,6 +26,12 @@ function formatDuration(iso: string | null | undefined): string {
   return `${min}:${String(s).padStart(2, '0')}`
 }
 
+/**
+ * Formats an ISO date string into a localized short date format.
+ *
+ * @param dateStr - The ISO date string.
+ * @returns A localized date string.
+ */
 function formatDate(dateStr: string | null | undefined): string {
   if (!dateStr) return ''
   return new Date(dateStr).toLocaleDateString('en-US', {
@@ -29,12 +41,14 @@ function formatDate(dateStr: string | null | undefined): string {
   })
 }
 
+/** Badge colors for different approval statuses. */
 const STATUS_BADGE: Record<ApprovalStatus, string> = {
   approved: 'bg-green-100 text-green-700',
   pending:  'bg-amber-100 text-amber-700',
   rejected: 'bg-red-100 text-red-700',
 }
 
+/** Labels for the video filter tabs. */
 const TAB_LABELS: { key: ApprovalStatus | 'all'; label: string }[] = [
   { key: 'all',      label: 'All'      },
   { key: 'approved', label: 'Approved' },
@@ -44,6 +58,18 @@ const TAB_LABELS: { key: ApprovalStatus | 'all'; label: string }[] = [
 
 // ── Video card (list item) ────────────────────────────────────────────────────
 
+/**
+ * Renders a single video card with management actions.
+ *
+ * @param props - Component properties.
+ * @param props.video - The video data to display.
+ * @param props.showStatus - Whether to display the approval status badge.
+ * @param props.processingId - The ID of the video currently being processed.
+ * @param props.onApprove - Callback to approve the video.
+ * @param props.onReject - Callback to reject the video.
+ * @param props.onDelete - Callback to delete the video.
+ * @returns A video card component.
+ */
 function VideoCard({
   video,
   showStatus,
@@ -138,6 +164,14 @@ function VideoCard({
 
 // ── Main component ────────────────────────────────────────────────────────────
 
+/**
+ * Client-side component for managing approved and pending videos.
+ * Provides search functionality and filtering/management of the video list.
+ *
+ * @param props - Component properties.
+ * @param props.initialVideos - The list of videos initially fetched from the server.
+ * @returns A video management client component.
+ */
 export default function VideosClient({ initialVideos }: { initialVideos: ApprovedVideo[] }) {
   const router = useRouter()
 
@@ -150,11 +184,13 @@ export default function VideosClient({ initialVideos }: { initialVideos: Approve
   const [processingId, setProcessingId] = useState<string | null>(null)
   const [approvingSearchId, setApprovingSearchId] = useState<string | null>(null)
 
+  /** Map of YouTube video IDs to their approval records for quick lookup. */
   const approvedYtIds = useMemo(
     () => new Map(initialVideos.map((v) => [v.youtube_video_id, v])),
     [initialVideos]
   )
 
+  /** Counts of videos in each status category. */
   const counts = useMemo(
     () => ({
       all:      initialVideos.length,
@@ -165,6 +201,7 @@ export default function VideosClient({ initialVideos }: { initialVideos: Approve
     [initialVideos]
   )
 
+  /** The list of videos filtered by the active tab. */
   const filteredVideos = useMemo(
     () =>
       activeTab === 'all'
@@ -175,6 +212,11 @@ export default function VideosClient({ initialVideos }: { initialVideos: Approve
 
   // ── Search ────────────────────────────────────────────────────────────────
 
+  /**
+   * Handles the YouTube video search form submission.
+   *
+   * @param e - The form event.
+   */
   const handleSearch = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault()
@@ -206,6 +248,11 @@ export default function VideosClient({ initialVideos }: { initialVideos: Approve
 
   // ── Approve from search ───────────────────────────────────────────────────
 
+  /**
+   * Approves a video directly from search results.
+   *
+   * @param video - The search result video to approve.
+   */
   async function handleApproveFromSearch(video: YoutubeSearchResult) {
     setApprovingSearchId(video.id)
     try {
@@ -232,6 +279,12 @@ export default function VideosClient({ initialVideos }: { initialVideos: Approve
 
   // ── Approve / Reject / Delete ─────────────────────────────────────────────
 
+  /**
+   * Updates the approval status of an existing video.
+   *
+   * @param id - The ID of the video record to update.
+   * @param status - The new status to apply.
+   */
   async function patchStatus(id: string, status: ApprovalStatus) {
     setProcessingId(id)
     try {
@@ -248,6 +301,11 @@ export default function VideosClient({ initialVideos }: { initialVideos: Approve
     }
   }
 
+  /**
+   * Permanently deletes a video record.
+   *
+   * @param id - The ID of the video record to delete.
+   */
   async function handleDelete(id: string) {
     if (!confirm('Permanently remove this video from SafeTube?')) return
     setProcessingId(id)

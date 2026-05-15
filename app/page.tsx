@@ -1,3 +1,9 @@
+/**
+ * The landing page of the application.
+ * Provides entry points for parents (admin login) and children (player gate).
+ *
+ * @returns A landing page component.
+ */
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">

@@ -24,6 +24,14 @@ const NAV_ITEMS: { href: string; label: string; icon: LucideIcon }[] = [
   { href: '/admin/settings', label: 'Settings', icon: Settings },
 ]
 
+/**
+ * Renders navigation links for the admin dashboard.
+ *
+ * @param props - Component properties.
+ * @param props.pathname - The current URL pathname to determine active state.
+ * @param props.onNavigate - Optional callback triggered when a link is clicked (useful for mobile).
+ * @returns A navigation element containing links.
+ */
 function NavLinks({
   pathname,
   onNavigate,
@@ -55,6 +63,13 @@ function NavLinks({
   )
 }
 
+/**
+ * Renders the header for the admin sidebar, displaying the app logo and child's name.
+ *
+ * @param props - Component properties.
+ * @param props.childName - The name of the child profile, or null if not set.
+ * @returns A header element.
+ */
 function SidebarHeader({ childName }: { childName: string | null }) {
   return (
     <div className="px-6 py-5 border-b border-gray-200">
@@ -71,6 +86,13 @@ function SidebarHeader({ childName }: { childName: string | null }) {
   )
 }
 
+/**
+ * Renders a sign-out button that triggers the logout server action.
+ *
+ * @param props - Component properties.
+ * @param props.compact - Whether to show only an icon (mobile) or full button (desktop).
+ * @returns A form containing the sign-out button.
+ */
 function SignOutButton({ compact = false }: { compact?: boolean }) {
   if (compact) {
     return (
@@ -100,6 +122,14 @@ function SignOutButton({ compact = false }: { compact?: boolean }) {
   )
 }
 
+/**
+ * The main layout wrapper for admin pages, providing a sidebar and mobile-responsive shell.
+ *
+ * @param props - Component properties.
+ * @param props.children - The page content to be rendered within the shell.
+ * @param props.childName - The name of the child profile for display in the sidebar.
+ * @returns A layout component with a sidebar and main content area.
+ */
 export default function AdminShell({
   children,
   childName,

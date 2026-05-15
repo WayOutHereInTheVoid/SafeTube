@@ -12,6 +12,12 @@ const COLOR_CLASSES = {
 
 type ColorKey = keyof typeof COLOR_CLASSES
 
+/**
+ * The admin dashboard page.
+ * Displays summary statistics and status alerts for the parent.
+ *
+ * @returns A dashboard page component with statistics cards.
+ */
 export default async function DashboardPage() {
   const supabase = createClient()
 

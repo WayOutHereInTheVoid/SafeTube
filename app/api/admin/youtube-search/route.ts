@@ -5,8 +5,11 @@ const YT = 'https://www.googleapis.com/youtube/v3'
 
 // ── YouTube API response shapes ─────────────────────────────────────────────
 
+/** Represents an item in a YouTube search result list. */
 interface YTSearchItem {
+  /** The unique ID of the search result item. */
   id: { channelId?: string; videoId?: string }
+  /** Snippet containing basic details about the search result. */
   snippet: {
     title: string
     channelTitle: string
@@ -19,35 +22,61 @@ interface YTSearchItem {
   }
 }
 
+/** Represents a YouTube channel resource from the API. */
 interface YTChannelItem {
+  /** The unique ID of the channel. */
   id: string
+  /** Statistics for the channel. */
   statistics: { subscriberCount?: string; hiddenSubscriberCount?: boolean }
 }
 
+/** Represents a YouTube video resource from the API. */
 interface YTVideoItem {
+  /** The unique ID of the video. */
   id: string
+  /** Content details including video duration. */
   contentDetails: { duration: string }
 }
 
 // ── Public result shape returned to the client ───────────────────────────────
 
+/** Represents a normalized search result returned to the client. */
 export interface YoutubeSearchResult {
+  /** The YouTube ID (channel or video). */
   id: string
+  /** The title of the search result. */
   title: string
+  /** URL to the result's thumbnail image. */
   thumbnail: string
+  /** The name of the channel associated with the result. */
   channelName: string
-  publishedAt?: string   // videos
-  duration?: string      // videos — ISO 8601 (e.g. "PT4M13S")
-  subscriberCount?: string // channels
+  /** ISO timestamp of when the video was published (videos only). */
+  publishedAt?: string
+  /** ISO 8601 duration string (videos only). */
+  duration?: string
+  /** Total subscriber count as a string (channels only). */
+  subscriberCount?: string
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
+/**
+ * Extracts the most suitable thumbnail URL from a search item.
+ *
+ * @param item - The YouTube search item.
+ * @returns A thumbnail URL string.
+ */
 function thumbnail(item: YTSearchItem): string {
   const t = item.snippet.thumbnails
   return t.medium?.url ?? t.high?.url ?? t.default?.url ?? ''
 }
 
+/**
+ * Fetches subscriber counts for a list of channel IDs.
+ *
+ * @param ids - An array of YouTube channel IDs.
+ * @returns A Map of channel IDs to subscriber count strings.
+ */
 async function fetchSubscriberCounts(
   ids: string[]
 ): Promise<Map<string, string>> {
@@ -67,6 +96,12 @@ async function fetchSubscriberCounts(
   )
 }
 
+/**
+ * Fetches durations for a list of video IDs.
+ *
+ * @param ids - An array of YouTube video IDs.
+ * @returns A Map of video IDs to ISO 8601 duration strings.
+ */
 async function fetchDurations(ids: string[]): Promise<Map<string, string>> {
   const params = new URLSearchParams({
     key: process.env.YOUTUBE_API_KEY!,
@@ -81,6 +116,13 @@ async function fetchDurations(ids: string[]): Promise<Map<string, string>> {
 
 // ── Route handler ────────────────────────────────────────────────────────────
 
+/**
+ * POST handler for searching YouTube channels or videos.
+ * Requires a valid parent session and a YouTube API key.
+ *
+ * @param request - The incoming request containing the search query and type.
+ * @returns A JSON response containing a list of normalized YouTube search results.
+ */
 export async function POST(request: NextRequest) {
   const supabase = createClient()
   const {

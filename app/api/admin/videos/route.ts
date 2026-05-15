@@ -1,6 +1,13 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse, type NextRequest } from 'next/server'
 
+/**
+ * POST handler for manually adding/approving a YouTube video.
+ * It performs an upsert, marking the video as 'approved' and 'manual' source.
+ *
+ * @param request - The incoming request containing video details.
+ * @returns A JSON response containing the created/updated video record.
+ */
 export async function POST(request: NextRequest) {
   const supabase = createClient()
   const {

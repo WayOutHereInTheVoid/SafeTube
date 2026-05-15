@@ -1,6 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
 import { Clock, CheckCircle2, XCircle } from 'lucide-react'
 
+/**
+ * Formats a duration in seconds into a human-readable string (e.g., "1h 2m", "5m 30s", "45s").
+ *
+ * @param seconds - The number of seconds to format.
+ * @returns A formatted duration string.
+ */
 function formatWatched(seconds: number): string {
   if (seconds < 60) return `${seconds}s`
   const m = Math.floor(seconds / 60)
@@ -11,6 +17,12 @@ function formatWatched(seconds: number): string {
   return rm > 0 ? `${h}h ${rm}m` : `${h}h`
 }
 
+/**
+ * Formats an ISO date string into a localized, human-readable date and time.
+ *
+ * @param dateStr - The ISO date string to format.
+ * @returns A localized date and time string.
+ */
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleString('en-US', {
     month: 'short',
@@ -21,15 +33,30 @@ function formatDate(dateStr: string): string {
   })
 }
 
+/**
+ * Represents a row in the watch history table.
+ */
 interface HistoryRow {
+  /** Unique ID of the history record. */
   id: string
+  /** Total seconds watched in this session. */
   watched_seconds: number
+  /** Whether the video was watched to the end. */
   completed: boolean
+  /** Timestamp when the record was created. */
   created_at: string
+  /** Child profile associated with this record. */
   child_profile: { name: string } | null
+  /** Video associated with this record. */
   approved_videos: { title: string } | null
 }
 
+/**
+ * The watch history page for the admin panel.
+ * Fetches and displays a table of recent video viewing sessions.
+ *
+ * @returns A watch history page component.
+ */
 export default async function HistoryPage() {
   const supabase = createClient()
 

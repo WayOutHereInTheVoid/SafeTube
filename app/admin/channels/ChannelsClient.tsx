@@ -9,6 +9,7 @@ import type { YoutubeSearchResult } from '@/app/api/admin/youtube-search/route'
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
+/** Configuration options for channel approval modes. */
 const APPROVAL_OPTIONS: {
   value: ApprovalMode
   label: string
@@ -35,6 +36,7 @@ const APPROVAL_OPTIONS: {
   },
 ]
 
+/** Human-readable labels for approval modes. */
 const MODE_LABELS: Record<ApprovalMode, string> = {
   auto: 'Auto-approve',
   manual: 'Queue for review',
@@ -43,6 +45,12 @@ const MODE_LABELS: Record<ApprovalMode, string> = {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
+/**
+ * Formats a subscriber count string into a human-readable format (e.g., "1.2M subscribers").
+ *
+ * @param count - The subscriber count string from YouTube API.
+ * @returns A formatted subscriber count string.
+ */
 function formatSubscribers(count: string | undefined): string {
   if (!count || count === 'Hidden') return 'Subscribers hidden'
   const n = parseInt(count, 10)
@@ -54,16 +62,30 @@ function formatSubscribers(count: string | undefined): string {
 
 // ── Modal ────────────────────────────────────────────────────────────────────
 
+/** Properties for the ChannelModal component. */
 interface ModalProps {
+  /** The channel being added or edited. */
   channel: YoutubeSearchResult | { id: string; title: string; thumbnail: string | null }
+  /** The initial approval mode to display. */
   initialMode: ApprovalMode
+  /** Whether the modal is in edit mode. */
   isEdit: boolean
+  /** Whether the form is currently submitting. */
   isSubmitting: boolean
+  /** Any error message to display in the modal. */
   error: string | null
+  /** Callback to close the modal. */
   onClose: () => void
+  /** Callback to handle form submission. */
   onSubmit: (mode: ApprovalMode, autoApproveNew: boolean) => void
 }
 
+/**
+ * Renders a modal for adding or editing an approved channel.
+ *
+ * @param props - Component properties.
+ * @returns A channel management modal component.
+ */
 function ChannelModal({
   channel,
   initialMode,
@@ -160,6 +182,14 @@ function ChannelModal({
 
 // ── Main component ───────────────────────────────────────────────────────────
 
+/**
+ * Client-side component for managing approved channels.
+ * Provides search functionality and a list of currently approved channels.
+ *
+ * @param props - Component properties.
+ * @param props.initialChannels - The list of channels initially fetched from the server.
+ * @returns A channel management client component.
+ */
 export default function ChannelsClient({
   initialChannels,
 }: {
@@ -189,6 +219,11 @@ export default function ChannelsClient({
 
   // ── Search ──────────────────────────────────────────────────────────────
 
+  /**
+   * Handles the YouTube channel search form submission.
+   *
+   * @param e - The form event.
+   */
   const handleSearch = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     if (!query.trim()) return
@@ -218,16 +253,29 @@ export default function ChannelsClient({
 
   // ── Modal helpers ───────────────────────────────────────────────────────
 
+  /**
+   * Opens the modal to add a new channel from search results.
+   *
+   * @param result - The search result channel to add.
+   */
   function openAddModal(result: YoutubeSearchResult) {
     setModal({ open: true, searchResult: result, editingChannel: null })
     setModalError(null)
   }
 
+  /**
+   * Opens the modal to edit an existing approved channel.
+   *
+   * @param ch - The approved channel to edit.
+   */
   function openEditModal(ch: ApprovedChannel) {
     setModal({ open: true, searchResult: null, editingChannel: ch })
     setModalError(null)
   }
 
+  /**
+   * Closes the channel management modal and resets its state.
+   */
   function closeModal() {
     setModal({ open: false, searchResult: null, editingChannel: null })
     setModalError(null)
@@ -235,6 +283,12 @@ export default function ChannelsClient({
 
   // ── Add / Edit submit ───────────────────────────────────────────────────
 
+  /**
+   * Handles the submission of the channel management modal.
+   *
+   * @param mode - The selected approval mode.
+   * @param autoApproveNew - Whether to automatically approve new videos.
+   */
   async function handleSubmit(mode: ApprovalMode, autoApproveNew: boolean) {
     setIsSubmitting(true)
     setModalError(null)
@@ -283,6 +337,11 @@ export default function ChannelsClient({
 
   // ── Remove ──────────────────────────────────────────────────────────────
 
+  /**
+   * Removes an approved channel.
+   *
+   * @param id - The ID of the channel record to remove.
+   */
   async function handleRemove(id: string) {
     if (!confirm('Remove this channel? Approved videos will remain but no new videos will sync.')) return
     setRemovingId(id)

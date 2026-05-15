@@ -7,12 +7,23 @@ import { Shield, Delete, Loader2 } from 'lucide-react'
 const PIN_LENGTH = 4
 const DIGITS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', null, '0', 'del'] as const
 
+/**
+ * A full-screen PIN entry interface for children.
+ * Authenticates the child using a 4-digit PIN and redirects to the player upon success.
+ *
+ * @returns A PIN entry gate component.
+ */
 export default function PinGate() {
   const router = useRouter()
   const [pin, setPin] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
+  /**
+   * Submits the entered PIN to the authentication API.
+   *
+   * @param p - The 4-digit PIN string.
+   */
   async function submitPin(p: string) {
     setSubmitting(true)
     try {
@@ -35,6 +46,11 @@ export default function PinGate() {
     }
   }
 
+  /**
+   * Handles a digit button press.
+   *
+   * @param d - The digit string.
+   */
   function pressDigit(d: string) {
     if (submitting || pin.length >= PIN_LENGTH) return
     const next = pin + d
@@ -43,6 +59,9 @@ export default function PinGate() {
     if (next.length === PIN_LENGTH) submitPin(next)
   }
 
+  /**
+   * Handles the backspace/delete button press.
+   */
   function pressBack() {
     if (submitting) return
     setPin((p) => p.slice(0, -1))

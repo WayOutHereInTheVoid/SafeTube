@@ -4,6 +4,13 @@ import type { ApprovalStatus } from '@/types/database'
 
 const VALID_STATUSES: ApprovalStatus[] = ['approved', 'pending', 'rejected']
 
+/**
+ * PATCH handler for updating a video's approval status.
+ *
+ * @param request - The incoming request containing the new approval_status.
+ * @param context - The context containing route parameters (video ID).
+ * @returns A JSON response containing the updated video record.
+ */
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -40,6 +47,13 @@ export async function PATCH(
   return NextResponse.json({ video: data })
 }
 
+/**
+ * DELETE handler for removing an approved video record.
+ *
+ * @param _request - The incoming request object.
+ * @param context - The context containing route parameters (video ID).
+ * @returns A JSON response indicating success or failure.
+ */
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: { id: string } }

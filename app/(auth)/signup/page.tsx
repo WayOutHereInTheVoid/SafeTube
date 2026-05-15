@@ -1,5 +1,12 @@
 import { signup } from './actions'
 
+/**
+ * Renders the parent sign-up page.
+ *
+ * @param props - Component properties.
+ * @param props.searchParams - URL search parameters for error messages.
+ * @returns A signup page component with a form.
+ */
 export default function SignupPage({
   searchParams,
 }: {

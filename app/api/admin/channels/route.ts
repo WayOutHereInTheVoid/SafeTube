@@ -4,6 +4,12 @@ import type { ApprovalMode } from '@/types/database'
 
 const VALID_MODES: ApprovalMode[] = ['auto', 'manual', 'current_only']
 
+/**
+ * POST handler for adding a new YouTube channel to the approved list.
+ *
+ * @param request - The incoming request containing channel details and approval mode.
+ * @returns A JSON response containing the created channel record.
+ */
 export async function POST(request: NextRequest) {
   const supabase = createClient()
   const {

@@ -4,6 +4,13 @@ import type { ApprovalMode } from '@/types/database'
 
 const VALID_MODES: ApprovalMode[] = ['auto', 'manual', 'current_only']
 
+/**
+ * DELETE handler for removing an approved channel.
+ *
+ * @param _request - The incoming request object.
+ * @param context - The context containing route parameters (channel ID).
+ * @returns A JSON response indicating success or failure.
+ */
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: { id: string } }
@@ -25,6 +32,13 @@ export async function DELETE(
   return NextResponse.json({ success: true })
 }
 
+/**
+ * PATCH handler for updating a channel's approval mode.
+ *
+ * @param request - The incoming request containing the new approval_mode.
+ * @param context - The context containing route parameters (channel ID).
+ * @returns A JSON response containing the updated channel record.
+ */
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }

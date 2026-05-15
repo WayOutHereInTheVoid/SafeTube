@@ -1,5 +1,12 @@
 import { login } from './actions'
 
+/**
+ * Renders the parent login page.
+ *
+ * @param props - Component properties.
+ * @param props.searchParams - URL search parameters for error or informational messages.
+ * @returns A login page component with a form.
+ */
 export default function LoginPage({
   searchParams,
 }: {

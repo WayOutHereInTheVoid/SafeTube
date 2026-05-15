@@ -1,212 +1,139 @@
-### SafeTube MVP — Claude Build Task List
+# SafeTube
 
----
+SafeTube is a parent-controlled YouTube player designed to provide a safe and focused viewing experience for children. Parents can approve specific channels and videos, while children enjoy a simplified, distraction-free interface with no external links or search capabilities.
 
-#### 🔧 Phase 1: Project Scaffolding
+## Features
 
-**Task 1 — Initialize the project**
+- **Parent Admin Dashboard**: Manage approved content and view watch history.
+- **Content Approval**: Approve entire YouTube channels with auto-sync options or select individual videos.
+- **Child Player**: A tablet-friendly, PIN-protected interface for children to watch only parent-approved videos.
+- **Watch History**: Track what your child is watching and for how long.
+- **Session Management**: Secure authentication for parents and a separate session for children.
 
-- Create a new Next.js 14+ App Router project with TypeScript and Tailwind CSS
-- Install dependencies: `@supabase/supabase-js`, `@supabase/ssr`, `react-youtube`, `lucide-react`
-- Set up `.env.local` with placeholders for: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `YOUTUBE_API_KEY`, `CHILD_PIN` (hashed)
-- Initialize Supabase client (browser + server variants using `@supabase/ssr`)
-- Configure Vercel project and link to GitHub repo
+## Tech Stack
 
----
+- **Framework**: [Next.js 14](https://nextjs.org/) (App Router)
+- **Database & Auth**: [Supabase](https://supabase.com/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Icons**: [Lucide React](https://lucide-react.dev/)
+- **YouTube Integration**: [YouTube Data API v3](https://developers.google.com/youtube/v3) & `react-youtube`
 
-#### 🗃️ Phase 2: Database Schema
+## Getting Started
 
-**Task 2 — Create Supabase schema**
+### Prerequisites
 
-Create the following tables with RLS enabled:
+- Node.js 18+ and npm
+- A Supabase project
+- A Google Cloud project with the YouTube Data API v3 enabled
 
-```other
-parents            — id, email, created_at (maps to Supabase Auth user)
-child_profile      — id, parent_id, name, pin_hash, created_at
-approved_channels  — id, parent_id, youtube_channel_id, channel_title, 
-                     thumbnail_url, approval_mode (enum: auto|manual|current_only), 
-                     auto_approve_new, created_at
-approved_videos    — id, parent_id, youtube_video_id, title, thumbnail_url, 
-                     channel_id, duration, published_at, approval_status 
-                     (enum: approved|pending|rejected), source (manual|channel_sync), 
-                     last_verified_at, created_at
-watch_history      — id, child_profile_id, video_id, watched_seconds, 
-                     completed, created_at
-```
+### Setup
 
-**Task 3 — Configure Row Level Security**
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd safetube
+   ```
 
-- `parents`: user can only read/write their own row
-- `approved_channels` / `approved_videos`: parent_id must match `auth.uid()`
-- `watch_history`: writable via service role only (child PIN session uses API route, not direct Supabase access)
-- `child_profile`: readable only by matching parent
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
 
----
+3. **Configure Environment Variables**:
+   Create a `.env.local` file in the root directory and add the following:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+   YOUTUBE_API_KEY=your_youtube_api_key
+   CHILD_JWT_SECRET=a_random_secure_string
+   ```
 
-#### 🔐 Phase 3: Parent Authentication
+4. **Database Schema**:
+   Run the following SQL in your Supabase SQL Editor to set up the required tables and Row Level Security (RLS) policies:
 
-**Task 4 — Parent auth flow**
+   ```sql
+   -- Create child_profile table
+   CREATE TABLE child_profile (
+     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+     parent_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+     name TEXT NOT NULL,
+     pin_hash TEXT NOT NULL,
+     created_at TIMESTAMPTZ DEFAULT NOW()
+   );
 
-- Implement Supabase email/password auth
-- Pages: `/login`, `/signup`
-- Middleware protecting all `/admin/*` routes — redirect to `/login` if no session
-- After login, redirect to `/admin/dashboard`
-- Logout button in admin nav
+   -- Create approved_channels table
+   CREATE TABLE approved_channels (
+     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+     parent_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+     youtube_channel_id TEXT NOT NULL,
+     channel_title TEXT NOT NULL,
+     thumbnail_url TEXT,
+     approval_mode TEXT NOT NULL DEFAULT 'manual',
+     auto_approve_new BOOLEAN DEFAULT FALSE,
+     created_at TIMESTAMPTZ DEFAULT NOW(),
+     UNIQUE(parent_id, youtube_channel_id)
+   );
 
----
+   -- Create approved_videos table
+   CREATE TABLE approved_videos (
+     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+     parent_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+     youtube_video_id TEXT NOT NULL,
+     title TEXT NOT NULL,
+     thumbnail_url TEXT,
+     channel_id TEXT,
+     channel_name TEXT,
+     duration TEXT,
+     published_at TIMESTAMPTZ,
+     approval_status TEXT NOT NULL DEFAULT 'pending',
+     source TEXT NOT NULL DEFAULT 'manual',
+     last_verified_at TIMESTAMPTZ,
+     created_at TIMESTAMPTZ DEFAULT NOW(),
+     UNIQUE(parent_id, youtube_video_id)
+   );
 
-#### 🎛️ Phase 4: Parent Admin Dashboard
+   -- Create watch_history table
+   CREATE TABLE watch_history (
+     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+     child_profile_id UUID REFERENCES child_profile(id) ON DELETE CASCADE NOT NULL,
+     video_id UUID REFERENCES approved_videos(id) ON DELETE CASCADE NOT NULL,
+     watched_seconds INTEGER DEFAULT 0,
+     completed BOOLEAN DEFAULT FALSE,
+     created_at TIMESTAMPTZ DEFAULT NOW()
+   );
 
-**Task 5 — Admin layout and shell**
+   -- Enable RLS
+   ALTER TABLE child_profile ENABLE ROW LEVEL SECURITY;
+   ALTER TABLE approved_channels ENABLE ROW LEVEL SECURITY;
+   ALTER TABLE approved_videos ENABLE ROW LEVEL SECURITY;
+   ALTER TABLE watch_history ENABLE ROW LEVEL SECURITY;
 
-- Route: `/admin/dashboard`
-- Sidebar nav with: Dashboard, Channels, Videos, Watch History, Settings
-- Show child profile name at top
-- Mobile-responsive layout
+   -- Add RLS Policies (example for child_profile)
+   CREATE POLICY "Parents can manage their own child profiles" ON child_profile
+     FOR ALL USING (auth.uid() = parent_id);
+   -- (Add similar policies for other tables)
+   ```
 
-**Task 6 — YouTube search API route**
+5. **Run the development server**:
+   ```bash
+   npm run dev
+   ```
 
-- `POST /api/admin/youtube-search`
-- Accepts: `{ query, type }` where type is `channel` or `video`
-- Calls YouTube Data API v3 search endpoint
-- Returns: id, title, thumbnail, channel name
-- Auth-gated: requires valid parent session
+## Usage
 
-**Task 7 — Channel management UI**
+### Parent Flow
+1. **Sign Up**: Create a parent account at `/signup`.
+2. **Setup**: Go to **Settings** to set your child's name and a 4-digit PIN.
+3. **Approve Channels**: Search for channels in the **Channels** tab and choose an approval mode.
+4. **Manage Videos**: Approve or reject videos in the **Videos** tab. Videos from synced channels will appear here.
+5. **Monitor**: Check the **Watch History** tab to see what your child has been watching.
 
-- Route: `/admin/channels`
-- Search box that calls Task 6 API route
-- Results show channel card with: thumbnail, name, subscriber count
-- "Add Channel" button opens modal with approval mode selector:
-    - **Auto-approve new uploads**
-    - **Queue new uploads for review**
-    - **Current videos only (no sync)**
-- Calls `POST /api/admin/channels` to save
-- List of currently approved channels with edit/remove
+### Child Flow
+1. **Access**: Navigate to `/watch`.
+2. **Unlock**: Enter the 4-digit PIN set by the parent.
+3. **Watch**: Tap any approved video thumbnail to start playing. The player will automatically advance to the next video when finished.
 
-**Task 8 — Video management UI**
+## Documentation
 
-- Route: `/admin/videos`
-- Search box for individual video approval
-- Video card shows: thumbnail, title, duration, channel, publish date
-- "Approve" button → calls `POST /api/admin/videos`
-- Pending review queue (from channel sync) — approve/reject buttons
-- Filter tabs: All | Approved | Pending | Rejected
-
----
-
-#### 🔌 Phase 5: Child-Facing API Routes
-
-**Task 9 — Child session authentication**
-
-- `POST /api/child/auth` — accepts PIN, returns a short-lived signed JWT (24hr) stored in httpOnly cookie
-- PIN is stored hashed (bcrypt) in `child_profile` table
-- All `/api/child/*` routes validate this JWT
-
-**Task 10 — Approved content endpoint**
-
-- `GET /api/child/playlist`
-- Returns all `approval_status = approved` videos for that parent's child profile
-- Returns: `{ id, youtube_video_id, title, thumbnail_url, duration }`
-- Shuffles or returns in added order (your call — ask Kate)
-- Never exposes raw YouTube search or channel data
-
-**Task 11 — Watch history logging**
-
-- `POST /api/child/watch` — logs `{ video_id, watched_seconds, completed }`
-- Called by the player app periodically and on video end
-
----
-
-#### 📺 Phase 6: Child Player App
-
-**Task 12 — Child PIN gate**
-
-- Route: `/watch`
-- Full-screen PIN entry UI (large number pad, tablet-friendly)
-- On success: sets httpOnly cookie via Task 9, redirects to `/watch/play`
-- No back button, no navigation
-
-**Task 13 — Child player UI**
-
-- Route: `/watch/play`
-- Fetches playlist from Task 10 on load
-- Displays: approved video thumbnails in a simple grid (no titles linking out)
-- Tap to play → loads YouTube IFrame Player
-- Player config:
-    - `rel=0`, `modestbranding=1`, `controls=1`
-    - No `enablejsapi` links out; all interaction through IFrame API
-    - On video end: auto-advance to next approved video
-- No search bar, no URL bar accessible, no YouTube logo link (CSS override)
-- "Watching: [title]" indicator only
-- Large touch targets for tablet
-
-**Task 14 — TV/fullscreen mode**
-
-- Add `?fullscreen=true` param that hides all chrome
-- CSS: `touch-action: none` on navigation areas
-- Test embed behavior on iPad and laptop browser
-
----
-
-#### 🔄 Phase 7: Content Sync Worker
-
-**Task 15 — Supabase Edge Function: channel sync**
-
-- Function name: `sync-channel-uploads`
-- For each `approved_channels` row where `approval_mode != current_only`:
-    - Fetch the channel's uploads playlist via YouTube Data API
-    - For each video not already in `approved_videos`:
-        - If `auto_approve_new = true` → insert with `approval_status = approved`
-        - If `auto_approve_new = false` → insert with `approval_status = pending`
-- Also verify existing approved videos: check if still public/playable
-    - Flag removed/private/age-restricted as `approval_status = rejected` with a note
-
-**Task 16 — Schedule the sync**
-
-- Configure Supabase cron via `pg_cron` to run `sync-channel-uploads` every 6 hours
-- Add manual "Sync Now" button in admin dashboard that triggers the function on demand
-
----
-
-#### 🧹 Phase 8: Polish & Settings
-
-**Task 17 — Admin watch history view**
-
-- Route: `/admin/history`
-- Table: child name, video title, date, duration watched, completed Y/N
-- Simple, no charts needed for MVP
-
-**Task 18 — Settings page**
-
-- Route: `/admin/settings`
-- Change child PIN
-- Change child profile name
-- Parent password change (via Supabase Auth)
-
-**Task 19 — Error states and empty states**
-
-- Child player: "No videos yet — ask a parent!" screen
-- Admin: loading skeletons, YouTube API error handling (quota exceeded message)
-- 404 and auth-redirect handling
-
-**Task 20 — Deploy to Vercel**
-
-- Set all env vars in Vercel project settings
-- Confirm Supabase prod URL vs local
-- Test full flow: parent login → approve video → child PIN → watch video → history appears in admin
-
----
-
-### Execution Order Summary
-
-| **Phase** | **Tasks** | **Deliverable**                      |
-| --------- | --------- | ------------------------------------ |
-| 1         | 1         | Runnable Next.js skeleton            |
-| 2         | 2–3       | Database ready, RLS locked down      |
-| 3         | 4         | Parent can log in                    |
-| 4         | 5–8       | Parent can approve content           |
-| 5         | 9–11      | Backend enforces allowlist           |
-| 6         | 12–14     | Child can watch approved content     |
-| 7         | 15–16     | Channels auto-sync new uploads       |
-| 8         | 17–20     | Polished, deployed, production-ready |
+The codebase is thoroughly documented using JSDoc/TSDoc. Each public function, class, and interface includes a description of its purpose, parameters, and return values.

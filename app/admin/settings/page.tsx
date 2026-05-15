@@ -6,6 +6,14 @@ interface Props {
   searchParams: { success?: string; error?: string; section?: string }
 }
 
+/**
+ * Renders a success or error banner for a specific settings section.
+ *
+ * @param props - Component properties.
+ * @param props.section - The name of the section this banner belongs to.
+ * @param props.searchParams - URL search parameters containing status information.
+ * @returns A banner element if status matches the section, otherwise null.
+ */
 function Banner({ section, searchParams }: { section: string; searchParams: Props['searchParams'] }) {
   if (searchParams.success === section) {
     return (
@@ -26,6 +34,14 @@ function Banner({ section, searchParams }: { section: string; searchParams: Prop
   return null
 }
 
+/**
+ * The settings page for the admin panel.
+ * Allows parents to manage child profiles, PINs, and their own password.
+ *
+ * @param props - Component properties.
+ * @param props.searchParams - URL search parameters for feedback messages.
+ * @returns A settings page component.
+ */
 export default async function SettingsPage({ searchParams }: Props) {
   const supabase = createClient()
 

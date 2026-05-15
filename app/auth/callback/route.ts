@@ -1,6 +1,13 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse, type NextRequest } from 'next/server'
 
+/**
+ * Route handler for the Supabase authentication callback.
+ * It exchanges an auth code for a session and redirects the user.
+ *
+ * @param request - The incoming request object.
+ * @returns A redirect response to the admin dashboard or login page.
+ */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')

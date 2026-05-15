@@ -2,6 +2,13 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getChildSession } from '@/lib/child-session'
 
+/**
+ * POST handler for logging watch history.
+ * Requires a valid child session.
+ *
+ * @param request - The incoming request containing video_id, watched_seconds, and completed status.
+ * @returns A JSON response indicating success or failure.
+ */
 export async function POST(request: NextRequest) {
   const session = await getChildSession()
   if (!session) {
