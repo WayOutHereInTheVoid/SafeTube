@@ -1,21 +1,16 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getServerUser } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
 import AdminShell from './components/AdminShell'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const supabase = createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getServerUser()
+  if (!user) redirect('/login')
 
-  let childName: string | null = null
-  if (user) {
-    const { data } = await supabase
-      .from('child_profile')
-      .select('name')
-      .eq('parent_id', user.id)
-      .maybeSingle()
-    childName = data?.name ?? null
-  }
+  const { data } = await createClient()
+    .from('child_profile')
+    .select('name')
+    .eq('parent_id', user.id)
+    .maybeSingle()
 
-  return <AdminShell childName={childName}>{children}</AdminShell>
+  return <AdminShell childName={data?.name ?? null}>{children}</AdminShell>
 }
