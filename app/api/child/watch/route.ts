@@ -36,16 +36,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Video not found or not approved' }, { status: 404 })
   }
 
-  const { error } = await admin.from('watch_history').insert({
-    child_profile_id: session.sub,
-    video_id,
-    watched_seconds: typeof watched_seconds === 'number' ? Math.max(0, Math.round(watched_seconds)) : 0,
-    completed: completed === true,
-  })
+  const { data, error } = await admin
+    .from('watch_history')
+    .insert({
+      child_profile_id: session.sub,
+      video_id,
+      watched_seconds: typeof watched_seconds === 'number' ? Math.max(0, Math.round(watched_seconds)) : 0,
+      completed: completed === true,
+    })
+    .select('id')
+    .single()
 
   if (error) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 
-  return NextResponse.json({ ok: true }, { status: 201 })
+  return NextResponse.json({ ok: true, id: data.id }, { status: 201 })
 }
