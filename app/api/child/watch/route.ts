@@ -8,14 +8,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  let body: { video_id?: unknown; watched_seconds?: unknown; completed?: unknown }
+  let body: { video_id?: unknown }
   try {
     body = await request.json()
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  const { video_id, watched_seconds, completed } = body
+  const { video_id } = body
 
   if (typeof video_id !== 'string' || !video_id) {
     return NextResponse.json({ error: '`video_id` is required' }, { status: 400 })
@@ -23,16 +23,20 @@ export async function POST(request: NextRequest) {
 
   const admin = createAdminClient()
 
-  const { error } = await admin.from('watch_history').insert({
-    child_profile_id: session.sub,
-    video_id,
-    watched_seconds: typeof watched_seconds === 'number' ? Math.max(0, Math.round(watched_seconds)) : 0,
-    completed: completed === true,
-  })
+  const { data, error } = await admin
+    .from('watch_history')
+    .insert({
+      child_profile_id: session.sub,
+      video_id,
+      watched_seconds: 0,
+      completed: false,
+    })
+    .select('id')
+    .single()
 
   if (error) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 
-  return NextResponse.json({ ok: true }, { status: 201 })
+  return NextResponse.json({ id: data.id }, { status: 201 })
 }

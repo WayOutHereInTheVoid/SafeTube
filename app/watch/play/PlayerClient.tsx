@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import YouTube from 'react-youtube'
@@ -28,6 +28,7 @@ export default function PlayerClient() {
   const [currentIndex, setCurrentIndex] = useState<number | null>(null)
   const playerRef = useRef<YouTubePlayer | null>(null)
   const logIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const watchRowIdRef = useRef<string | null>(null)
 
   // ── Fetch playlist on mount ───────────────────────────────────────────────
 
@@ -47,33 +48,40 @@ export default function PlayerClient() {
 
   // ── Watch-history logging ─────────────────────────────────────────────────
 
-  const logWatch = useCallback(
-    async (videoId: string, completed: boolean) => {
-      if (!playerRef.current) return
-      const seconds = Math.floor(playerRef.current.getCurrentTime?.() ?? 0)
-      await fetch('/api/child/watch', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ video_id: videoId, watched_seconds: seconds, completed }),
-      }).catch(() => {/* best-effort */})
-    },
-    []
-  )
-
   useEffect(() => {
     if (currentIndex === null || videos.length === 0) return
     const video = videos[currentIndex]
+    let cancelled = false
 
-    if (logIntervalRef.current) clearInterval(logIntervalRef.current)
+    watchRowIdRef.current = null
 
+    // One POST per video session to create the row
+    fetch('/api/child/watch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ video_id: video.id }),
+    })
+      .then(r => r.json())
+      .then(({ id }) => { if (!cancelled) watchRowIdRef.current = id })
+      .catch(() => {})
+
+    // Progress PATCHes every 30 seconds
     logIntervalRef.current = setInterval(() => {
-      logWatch(video.id, false)
+      const id = watchRowIdRef.current
+      if (!id || !playerRef.current) return
+      const seconds = Math.floor(playerRef.current.getCurrentTime?.() ?? 0)
+      fetch(`/api/child/watch/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ watched_seconds: seconds }),
+      }).catch(() => {})
     }, LOG_INTERVAL_MS)
 
     return () => {
+      cancelled = true
       if (logIntervalRef.current) clearInterval(logIntervalRef.current)
     }
-  }, [currentIndex, videos, logWatch])
+  }, [currentIndex, videos])
 
   // ── YouTube player event handlers ─────────────────────────────────────────
 
@@ -83,7 +91,15 @@ export default function PlayerClient() {
 
   function handleEnd() {
     if (currentIndex === null || videos.length === 0) return
-    logWatch(videos[currentIndex].id, true)
+    const id = watchRowIdRef.current
+    if (id && playerRef.current) {
+      const seconds = Math.floor(playerRef.current.getCurrentTime?.() ?? 0)
+      fetch(`/api/child/watch/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ watched_seconds: seconds, completed: true }),
+      }).catch(() => {})
+    }
     setCurrentIndex((i) => ((i ?? 0) + 1) % videos.length)
   }
 
@@ -96,8 +112,14 @@ export default function PlayerClient() {
   // ── Select a video ────────────────────────────────────────────────────────
 
   function selectVideo(index: number) {
-    if (currentIndex !== null && videos[currentIndex]) {
-      logWatch(videos[currentIndex].id, false)
+    const id = watchRowIdRef.current
+    if (id && playerRef.current) {
+      const seconds = Math.floor(playerRef.current.getCurrentTime?.() ?? 0)
+      fetch(`/api/child/watch/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ watched_seconds: seconds }),
+      }).catch(() => {})
     }
     setCurrentIndex(index)
   }
