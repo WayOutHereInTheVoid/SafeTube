@@ -23,19 +23,6 @@ export async function POST(request: NextRequest) {
 
   const admin = createAdminClient()
 
-  // Verify the video belongs to this child's parent and is approved
-  const { data: video, error: videoError } = await admin
-    .from('approved_videos')
-    .select('id')
-    .eq('id', video_id)
-    .eq('parent_id', session.parent_id)
-    .eq('approval_status', 'approved')
-    .single()
-
-  if (videoError || !video) {
-    return NextResponse.json({ error: 'Video not found or not approved' }, { status: 404 })
-  }
-
   const { error } = await admin.from('watch_history').insert({
     child_profile_id: session.sub,
     video_id,
