@@ -28,6 +28,7 @@ export default function PlayerClient() {
   const [currentIndex, setCurrentIndex] = useState<number | null>(null)
   const playerRef = useRef<YouTubePlayer | null>(null)
   const logIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const historyIdRef = useRef<string | null>(null)
 
   // ── Fetch playlist on mount ───────────────────────────────────────────────
 
@@ -47,33 +48,61 @@ export default function PlayerClient() {
 
   // ── Watch-history logging ─────────────────────────────────────────────────
 
-  const logWatch = useCallback(
-    async (videoId: string, completed: boolean) => {
-      if (!playerRef.current) return
+  const updateWatch = useCallback(async (completed: boolean) => {
+    if (!historyIdRef.current || !playerRef.current) return
+
+    try {
       const seconds = Math.floor(playerRef.current.getCurrentTime?.() ?? 0)
-      await fetch('/api/child/watch', {
-        method: 'POST',
+      await fetch(`/api/child/watch/${historyIdRef.current}`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ video_id: videoId, watched_seconds: seconds, completed }),
-      }).catch(() => {/* best-effort */})
-    },
-    []
-  )
+        body: JSON.stringify({ watched_seconds: seconds, completed }),
+      })
+    } catch {
+      /* best-effort */
+    }
+  }, [])
 
   useEffect(() => {
-    if (currentIndex === null || videos.length === 0) return
+    if (currentIndex === null || videos.length === 0) {
+      if (logIntervalRef.current) clearInterval(logIntervalRef.current)
+      historyIdRef.current = null
+      return
+    }
+
     const video = videos[currentIndex]
+    let active = true
 
     if (logIntervalRef.current) clearInterval(logIntervalRef.current)
 
+    // Reset history ID for the new video
+    historyIdRef.current = null
+
+    // Create new watch history record
+    fetch('/api/child/watch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ video_id: video.id, watched_seconds: 0, completed: false }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (active && data.id) {
+          historyIdRef.current = data.id
+        }
+      })
+      .catch(() => {
+        /* best-effort */
+      })
+
     logIntervalRef.current = setInterval(() => {
-      logWatch(video.id, false)
+      updateWatch(false)
     }, LOG_INTERVAL_MS)
 
     return () => {
+      active = false
       if (logIntervalRef.current) clearInterval(logIntervalRef.current)
     }
-  }, [currentIndex, videos, logWatch])
+  }, [currentIndex, videos, updateWatch])
 
   // ── YouTube player event handlers ─────────────────────────────────────────
 
@@ -83,7 +112,7 @@ export default function PlayerClient() {
 
   function handleEnd() {
     if (currentIndex === null || videos.length === 0) return
-    logWatch(videos[currentIndex].id, true)
+    updateWatch(true)
     setCurrentIndex((i) => ((i ?? 0) + 1) % videos.length)
   }
 
@@ -97,7 +126,7 @@ export default function PlayerClient() {
 
   function selectVideo(index: number) {
     if (currentIndex !== null && videos[currentIndex]) {
-      logWatch(videos[currentIndex].id, false)
+      updateWatch(false)
     }
     setCurrentIndex(index)
   }
@@ -199,7 +228,10 @@ export default function PlayerClient() {
             {/* "Watching" indicator */}
             <div className="bg-gray-900 px-4 py-3 flex items-center gap-3">
               <button
-                onClick={() => setCurrentIndex(null)}
+                onClick={() => {
+                  if (currentIndex !== null) updateWatch(false)
+                  setCurrentIndex(null)
+                }}
                 className="text-gray-400 hover:text-white transition-colors flex-shrink-0"
                 aria-label="Back to grid"
               >
