@@ -129,7 +129,7 @@ export default function PlayerClient() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-teal-500 border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
@@ -228,7 +228,7 @@ export default function PlayerClient() {
                 <ChevronLeft size={22} />
               </button>
               <p className="text-white font-medium text-sm truncate">
-                Watching: <span className="text-blue-300">{currentVideo.title}</span>
+                Watching: <span className="text-teal-300">{currentVideo.title}</span>
               </p>
             </div>
           </>
@@ -258,7 +258,7 @@ export default function PlayerClient() {
               <div
                 className={`relative rounded-xl overflow-hidden aspect-video bg-gray-800 w-full transition-all ${
                   currentIndex === index
-                    ? 'ring-2 ring-blue-500'
+                    ? 'ring-2 ring-teal-500'
                     : 'group-hover:ring-2 group-hover:ring-gray-700'
                 }`}
               >
@@ -277,15 +277,15 @@ export default function PlayerClient() {
                   </div>
                 )}
                 {currentIndex === index && (
-                  <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center">
-                    <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse" />
+                  <div className="absolute inset-0 bg-teal-500/20 flex items-center justify-center">
+                    <div className="w-3 h-3 bg-teal-400 rounded-full animate-pulse" />
                   </div>
                 )}
               </div>
               <div className="px-1">
                 <h3
                   className={`text-sm font-medium line-clamp-2 transition-colors ${
-                    currentIndex === index ? 'text-blue-400' : 'text-gray-200 group-hover:text-white'
+                    currentIndex === index ? 'text-teal-400' : 'text-gray-200 group-hover:text-white'
                   }`}
                 >
                   {video.title}

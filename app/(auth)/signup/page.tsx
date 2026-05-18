@@ -28,7 +28,7 @@ export default function SignupPage({
               type="email"
               required
               autoComplete="email"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
             />
           </div>
 
@@ -43,14 +43,14 @@ export default function SignupPage({
               required
               autoComplete="new-password"
               minLength={8}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
             />
             <p className="mt-1 text-xs text-gray-400">Minimum 8 characters</p>
           </div>
 
           <button
             type="submit"
-            className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+            className="w-full rounded-lg bg-teal-500 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-600 transition-colors"
           >
             Create account
           </button>
@@ -58,7 +58,7 @@ export default function SignupPage({
 
         <p className="mt-5 text-center text-sm text-gray-500">
           Already have an account?{' '}
-          <a href="/login" className="font-medium text-blue-600 hover:underline">
+          <a href="/login" className="font-medium text-teal-600 hover:underline">
             Sign in
           </a>
         </p>

@@ -18,7 +18,7 @@ export default function LoginPage({
         )}
 
         {searchParams.message && (
-          <div className="mb-4 rounded-lg bg-blue-50 border border-blue-200 px-4 py-3 text-sm text-blue-700">
+          <div className="mb-4 rounded-lg bg-teal-50 border border-teal-200 px-4 py-3 text-sm text-teal-700">
             {searchParams.message}
           </div>
         )}
@@ -34,7 +34,7 @@ export default function LoginPage({
               type="email"
               required
               autoComplete="email"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
             />
           </div>
 
@@ -48,13 +48,13 @@ export default function LoginPage({
               type="password"
               required
               autoComplete="current-password"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+            className="w-full rounded-lg bg-teal-500 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-600 transition-colors"
           >
             Sign in
           </button>
@@ -62,7 +62,7 @@ export default function LoginPage({
 
         <p className="mt-5 text-center text-sm text-gray-500">
           No account?{' '}
-          <a href="/signup" className="font-medium text-blue-600 hover:underline">
+          <a href="/signup" className="font-medium text-teal-600 hover:underline">
             Sign up
           </a>
         </p>
