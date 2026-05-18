@@ -54,7 +54,7 @@ export default function PinGate() {
       className="min-h-screen bg-gray-950 flex flex-col items-center justify-center select-none"
       style={{ touchAction: 'none' }}
     >
-      <Shield className="text-blue-400" size={44} />
+      <Shield className="text-teal-400" size={44} />
       <h1 className="mt-4 text-3xl font-bold text-white tracking-tight">SafeTube</h1>
       <p className="mt-2 text-gray-400 text-base">Enter your PIN to watch</p>
 
@@ -64,7 +64,7 @@ export default function PinGate() {
           <div
             key={i}
             className={`w-5 h-5 rounded-full border-2 transition-all duration-150 ${
-              i < pin.length ? 'bg-blue-400 border-blue-400 scale-110' : 'border-gray-600'
+              i < pin.length ? 'bg-teal-400 border-teal-400 scale-110' : 'border-gray-600'
             }`}
           />
         ))}
@@ -73,7 +73,7 @@ export default function PinGate() {
       {/* Error */}
       <div className="mt-4 h-6">
         {error && <p className="text-red-400 text-sm animate-pulse">{error}</p>}
-        {submitting && <Loader2 className="text-blue-400 animate-spin mx-auto" size={20} />}
+        {submitting && <Loader2 className="text-teal-400 animate-spin mx-auto" size={20} />}
       </div>
 
       {/* Number pad */}

@@ -161,7 +161,7 @@ export default function PlayerClient() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-teal-500 border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
@@ -256,7 +256,7 @@ export default function PlayerClient() {
                 <ChevronLeft size={22} />
               </button>
               <p className="text-white font-medium text-sm truncate">
-                Watching: <span className="text-blue-300">{currentVideo.title}</span>
+                Watching: <span className="text-teal-300">{currentVideo.title}</span>
               </p>
             </div>
           </>
@@ -281,7 +281,7 @@ export default function PlayerClient() {
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search videos…"
-            className="w-full bg-gray-800 text-white placeholder-gray-500 rounded-xl pl-9 pr-10 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full bg-gray-800 text-white placeholder-gray-500 rounded-xl pl-9 pr-10 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
           />
           {searchQuery && (
             <button
@@ -301,7 +301,7 @@ export default function PlayerClient() {
               onClick={() => setActiveChannel(null)}
               className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                 activeChannel === null
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-teal-500 text-white'
                   : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
               }`}
             >
@@ -313,7 +313,7 @@ export default function PlayerClient() {
                 onClick={() => setActiveChannel(activeChannel === channel ? null : channel)}
                 className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                   activeChannel === channel
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-teal-500 text-white'
                     : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
                 }`}
               >
@@ -332,7 +332,7 @@ export default function PlayerClient() {
             <p className="mt-3 text-gray-400 text-sm">No videos match your search</p>
             <button
               onClick={() => { setSearchQuery(''); setActiveChannel(null) }}
-              className="mt-3 text-blue-400 text-sm hover:text-blue-300"
+              className="mt-3 text-teal-400 text-sm hover:text-teal-300"
             >
               Clear filters
             </button>
@@ -353,7 +353,7 @@ export default function PlayerClient() {
                   <div
                     className={`relative rounded-xl overflow-hidden aspect-video bg-gray-800 w-full transition-all ${
                       isPlaying
-                        ? 'ring-2 ring-blue-500'
+                        ? 'ring-2 ring-teal-500'
                         : 'group-hover:ring-2 group-hover:ring-gray-700'
                     }`}
                   >
@@ -372,15 +372,15 @@ export default function PlayerClient() {
                       </div>
                     )}
                     {isPlaying && (
-                      <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center">
-                        <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse" />
+                      <div className="absolute inset-0 bg-teal-500/20 flex items-center justify-center">
+                        <div className="w-3 h-3 bg-teal-400 rounded-full animate-pulse" />
                       </div>
                     )}
                   </div>
                   <div className="px-1">
                     <h3
                       className={`text-sm font-medium line-clamp-2 transition-colors ${
-                        isPlaying ? 'text-blue-400' : 'text-gray-200 group-hover:text-white'
+                        isPlaying ? 'text-teal-400' : 'text-gray-200 group-hover:text-white'
                       }`}
                     >
                       {video.title}
