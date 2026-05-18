@@ -131,7 +131,7 @@ function ChannelModal({
               onClick={() => setMode(opt.value)}
               className={`w-full text-left rounded-xl border-2 px-4 py-3 transition-colors ${
                 mode === opt.value
-                  ? 'border-blue-500 bg-blue-50'
+                  ? 'border-teal-500 bg-teal-50'
                   : 'border-gray-200 hover:border-gray-300'
               }`}
             >
@@ -148,7 +148,7 @@ function ChannelModal({
         <button
           onClick={() => onSubmit(mode, selected.autoApproveNew)}
           disabled={isSubmitting}
-          className="mt-5 w-full flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 transition-colors"
+          className="mt-5 w-full flex items-center justify-center gap-2 rounded-xl bg-teal-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-teal-600 disabled:opacity-60 transition-colors"
         >
           {isSubmitting && <Loader2 size={15} className="animate-spin" />}
           {isEdit ? 'Save changes' : 'Add channel'}
@@ -357,13 +357,13 @@ export default function ChannelsClient({
               placeholder="Search YouTube channels…"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full rounded-xl border border-gray-300 pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-xl border border-gray-300 pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
             />
           </div>
           <button
             type="submit"
             disabled={isSearching || !query.trim()}
-            className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 transition-colors"
+            className="flex items-center gap-2 rounded-xl bg-teal-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-teal-600 disabled:opacity-60 transition-colors"
           >
             {isSearching ? <Loader2 size={15} className="animate-spin" /> : null}
             Search
@@ -418,7 +418,7 @@ export default function ChannelsClient({
                     className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors flex-shrink-0 ${
                       alreadyAdded
                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-teal-500 text-white hover:bg-teal-600'
                     }`}
                   >
                     <Plus size={13} />

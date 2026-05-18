@@ -282,13 +282,13 @@ export default function VideosClient({ initialVideos }: { initialVideos: Approve
             placeholder="Search YouTube videos…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full rounded-xl border border-gray-300 pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-xl border border-gray-300 pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
           />
         </div>
         <button
           type="submit"
           disabled={isSearching || !query.trim()}
-          className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 transition-colors"
+          className="flex items-center gap-2 rounded-xl bg-teal-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-teal-600 disabled:opacity-60 transition-colors"
         >
           {isSearching && <Loader2 size={15} className="animate-spin" />}
           Search
@@ -383,13 +383,13 @@ export default function VideosClient({ initialVideos }: { initialVideos: Approve
               onClick={() => setActiveTab(key)}
               className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px ${
                 activeTab === key
-                  ? 'border-blue-600 text-blue-700'
+                  ? 'border-teal-600 text-teal-700'
                   : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
               {label}
               <span className={`ml-1.5 rounded-full px-1.5 py-0.5 text-xs ${
-                activeTab === key ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'
+                activeTab === key ? 'bg-teal-100 text-teal-700' : 'bg-gray-100 text-gray-500'
               }`}>
                 {counts[key]}
               </span>

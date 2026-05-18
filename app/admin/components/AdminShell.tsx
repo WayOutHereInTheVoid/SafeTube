@@ -42,7 +42,7 @@ function NavLinks({
             onClick={onNavigate}
             className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
               active
-                ? 'bg-blue-50 text-blue-700'
+                ? 'bg-teal-50 text-teal-700'
                 : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
             }`}
           >
@@ -59,7 +59,7 @@ function SidebarHeader({ childName }: { childName: string | null }) {
   return (
     <div className="px-6 py-5 border-b border-gray-200">
       <div className="flex items-center gap-2">
-        <Shield className="text-blue-600" size={20} />
+        <Shield className="text-teal-600" size={20} />
         <span className="font-bold text-gray-900">SafeTube</span>
       </div>
       {childName ? (
@@ -146,7 +146,7 @@ export default function AdminShell({
             <Menu size={20} />
           </button>
           <div className="flex items-center gap-1.5">
-            <Shield className="text-blue-600" size={18} />
+            <Shield className="text-teal-600" size={18} />
             <span className="font-bold text-gray-900">SafeTube</span>
           </div>
           <SignOutButton compact />
