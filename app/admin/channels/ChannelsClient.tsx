@@ -186,6 +186,9 @@ export default function ChannelsClient({
   // Removing state
   const [removingId, setRemovingId] = useState<string | null>(null)
 
+  // Success banner
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+
   const approvedIds = new Set(initialChannels.map((ch) => ch.youtube_channel_id))
 
   // ── Search ──────────────────────────────────────────────────────────────
@@ -274,6 +277,13 @@ export default function ChannelsClient({
           setModalError(data.error ?? 'Failed to add channel')
           return
         }
+        const added = typeof data.videos_added === 'number' ? data.videos_added : 0
+        const msg =
+          added > 0
+            ? `Channel added — ${added} video${added === 1 ? '' : 's'} ready to watch`
+            : 'Channel added'
+        setSuccessMessage(msg)
+        setTimeout(() => setSuccessMessage(null), 5000)
       }
       closeModal()
       router.refresh()
@@ -324,6 +334,12 @@ export default function ChannelsClient({
       )}
 
       <div>
+        {successMessage && (
+          <div className="mb-4 flex items-center gap-3 rounded-xl bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800">
+            <span className="font-medium">{successMessage}</span>
+          </div>
+        )}
+
         <h1 className="text-2xl font-bold text-gray-900">Channels</h1>
         <p className="mt-1 text-sm text-gray-500">
           Search for YouTube channels and control how their videos are approved.
