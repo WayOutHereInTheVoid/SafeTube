@@ -4,7 +4,7 @@ import { Tv, Play, AlertCircle, Clock } from 'lucide-react'
 import SyncButton from '@/app/admin/components/SyncButton'
 
 const COLOR_CLASSES = {
-  blue:   { card: 'bg-blue-50',   icon: 'text-blue-600',   value: 'text-blue-700'  },
+  teal:   { card: 'bg-teal-50',   icon: 'text-teal-600',   value: 'text-teal-700'  },
   green:  { card: 'bg-green-50',  icon: 'text-green-600',  value: 'text-green-700' },
   amber:  { card: 'bg-amber-50',  icon: 'text-amber-600',  value: 'text-amber-700' },
   purple: { card: 'bg-purple-50', icon: 'text-purple-600', value: 'text-purple-700'},
@@ -43,7 +43,7 @@ export default async function DashboardPage() {
       value: channelsRes.count ?? 0,
       icon: Tv,
       href: '/admin/channels',
-      color: 'blue',
+      color: 'teal',
     },
     {
       label: 'Approved Videos',

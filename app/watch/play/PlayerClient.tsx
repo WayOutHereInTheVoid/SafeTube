@@ -161,7 +161,7 @@ export default function PlayerClient() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-teal-500 border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
@@ -256,7 +256,7 @@ export default function PlayerClient() {
                 <ChevronLeft size={22} />
               </button>
               <p className="text-white font-medium text-sm truncate">
-                Watching: <span className="text-blue-300">{currentVideo.title}</span>
+                Watching: <span className="text-teal-300">{currentVideo.title}</span>
               </p>
             </div>
           </>
